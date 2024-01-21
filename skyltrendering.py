@@ -82,6 +82,11 @@ if __name__=="__main__":
                 print(args)
             pos += args.s
         except KeyboardInterrupt:
+            print()
+            print()
             print(rendera_text("Avslutad", typsnitt))
+            print()
+            print()
+
             print('\033[?25h', end="")
             break

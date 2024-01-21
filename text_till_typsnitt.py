@@ -10,7 +10,7 @@ class ASCIITypsnitt:
 
     def render_char(self, char="", space=0):
         if char not in self.letterdict or len(char) != 1:
-            char = "@"
+            char = "saknad"
         char_rendered = self.letterdict[char]
 
         return ASCIITypsnitt.add_strings(char_rendered, ASCIITypsnitt.render_full_char(space, self.h, " "))
