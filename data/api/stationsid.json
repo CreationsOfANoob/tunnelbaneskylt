@@ -25,5 +25,25 @@
         "alias": [
             "centr"
         ]
+    },
+    "Bromma Blocks (Stockholm)": {
+        "ID": "3601",
+        "alias": [
+            "bromma"
+        ]
+    },
+    "Brommaplan (Stockholm)": {
+        "ID": "9109",
+        "alias": [
+            "Brommaplan",
+            "bromm plan"
+        ]
+    },
+    "Ropsten (Stockholm)": {
+        "ID": "9220",
+        "alias": [
+            "rop"
+        ],
+        "namn": "Ropsten (Stockholm)"
     }
 }

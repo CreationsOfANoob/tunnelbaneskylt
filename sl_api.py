@@ -32,12 +32,12 @@ class Avgang:
         return Avgang(destination, ankomsttid, linje, ankomsttid_datetime)
 
 class Station:
-    def __init__(self, id, uppdateringsfrekvens, tunnelbana, sparvagn, buss, pendeltag):
+    def __init__(self, namn, id, uppdateringsfrekvens, tunnelbana, sparvagn, buss, pendeltag):
         self._id = id
         self._uppdateringsfrekvens = uppdateringsfrekvens
         self._avgangar = []
         self._tid_nasta_uppdatering = 0
-        self
+        self.namn = namn
 
     def get_avgangar(self):
         self.uppdatera_avgangar()
@@ -54,16 +54,17 @@ class Station:
 
     @classmethod
     def new_from_name(cls, stationsnamn, uppdateringsfrekvens = 20, tunnelbana = True, sparvagn = False, buss = False, pendeltag = False):
-        id = cls._hitta_stationsid(stationsnamn)
-        return Station(id, uppdateringsfrekvens, tunnelbana, sparvagn, buss, pendeltag)
+        id, namn = cls._hitta_stationsinfo(stationsnamn)
+        return Station(namn, id, uppdateringsfrekvens, tunnelbana, sparvagn, buss, pendeltag)
 
     @classmethod
-    def _hitta_stationsid(cls, stationsnamn):
+    def _hitta_stationsinfo(cls, stationsnamn):
         station_dict = hitta_station(stationsnamn)
         if station_dict == None:
             raise ValueError(f'Stationen "{stationsnamn}" kunde inte hittas.')
         id = station_dict["ID"]
-        return id
+        namn = station_dict["namn"]
+        return (id, namn)
 
 
 def dict_from_json_file(filnamn):
@@ -81,12 +82,14 @@ def hitta_station(station_str):
     try:
         #Börja med att kolla om stationsnamnet matchar en sparad station
         hittad_station = sparade_stationer[station_str]
+        hittad_station["namn"] = station_str
         return hittad_station
     except KeyError:
         #Sök efter sparade alias till stationer
         for namn, station in sparade_stationer.items():
             if station_str in station.get("alias", []):
                 hittad_station = station
+                hittad_station["namn"] = namn
                 return hittad_station
         #Annars, sök mot SL:s API Platsuppslag
         api_stationer = anropa_sl_platsuppslag(station_str).get("ResponseData")
@@ -101,8 +104,8 @@ def hitta_station(station_str):
 
             sparade_stationer[best_result["Name"]] = sparad_station
             hittad_station = sparad_station
+            hittad_station["namn"] = best_result["Name"]
             json_file_from_dict(sparade_stationer, "data/api/stationsid.json")
-
     return hittad_station
 
 
@@ -148,5 +151,6 @@ if __name__=="__main__":
     station = Station.new_from_name(stationsnamn)
     avgangar = station.get_avgangar()
     print()
+    print(station.namn)
     for avgang in avgangar:
         print(avgang.to_str())

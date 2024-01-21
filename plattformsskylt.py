@@ -3,6 +3,7 @@ import time
 import argparse
 import skylt
 import texttypsnitt
+import sl_api
 
 
 class bcolors:
