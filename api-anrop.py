@@ -77,7 +77,7 @@ def json_file_from_dict(dict, filnamn):
 
 def hitta_station(station_str):
     hittad_station = None
-    sparade_stationer = dict_from_json_file("data/api/stationsid.json").get("stationer", {"stationer":[]})
+    sparade_stationer = dict_from_json_file("data/api/stationsid.json")
     try:
         #Börja med att kolla om stationsnamnet matchar en sparad station
         hittad_station = sparade_stationer[station_str]
@@ -89,21 +89,20 @@ def hitta_station(station_str):
                 hittad_station = station
                 return hittad_station
         #Annars, sök mot SL:s API Platsuppslag
-        try:
-            hittad_station = anropa_sl_platsuppslag(station_str)["ResponseData"][0]
-            print(hittad_station)
-            if not hittad_station is None:
-                sparad_station = sparade_stationer.get(hittad_station["Name"])
-                if sparad_station is None:
-                    sparad_station = {"ID":hittad_station["SiteID"], "alias":[station_str]}
-                else:
-                    sparad_station["ID"] = hittad_station["SiteId"]
-                    sparad_station["alias"].append(station_str)
+        api_stationer = anropa_sl_platsuppslag(station_str).get("ResponseData")
+        if not (api_stationer is None or api_stationer == []):
+            best_result = api_stationer[0]
+            sparad_station = sparade_stationer.get(best_result["Name"])
+            if sparad_station is None:
+                sparad_station = {"ID":best_result["SiteId"], "alias":[station_str]}
+            else:
+                sparad_station["ID"] = best_result["SiteId"]
+                sparad_station["alias"].append(station_str)
 
-                sparade_stationer[hittad_station["Name"]] = sparad_station
-                json_file_from_dict(sparade_stationer, "data/api/stationsid.json")
-        except KeyError:
-            pass
+            sparade_stationer[best_result["Name"]] = sparad_station
+            hittad_station = sparad_station
+            json_file_from_dict(sparade_stationer, "data/api/stationsid.json")
+
     return hittad_station
 
 
@@ -151,23 +150,3 @@ if __name__=="__main__":
     print()
     for avgang in avgangar:
         print(avgang.to_str())
-    #
-    # stationskoll = requests.get(f"https://journeyplanner.integration.sl.se/v1/typeahead.json?key={sl_platsuppslag_key}&searchstring={stationsnamn}&type=S")
-    # print(stationskoll.status_code)
-    #
-    # print(stationskoll.json()["ResponseData"][0]["Name"])
-    # stationsid = stationskoll.json()["ResponseData"][0]["SiteId"]
-    #
-    # svar = requests.get(f"https://api.sl.se/api2/realtimedeparturesV4.json?key={sl_realtid_key}&siteid={stationsid}&timewindow=20")
-    # print(svar.status_code)
-    # tunnelbana = svar.json()["ResponseData"]["Metros"]
-    # sparvagn = svar.json()["ResponseData"]["Trams"]
-    # bussar = svar.json()["ResponseData"]["Buses"]
-    #
-    # alla = tunnelbana + sparvagn + bussar
-    # alla_sorterad = sorted(alla, key=lambda x: str(x.get("ExpectedDateTime", 0)))
-    # for avgang in alla:
-    #     linje = avgang["LineNumber"]
-    #     destination = avgang["Destination"]
-    #     tid_kvar = avgang["DisplayTime"]
-    #     print(f"{linje}  {destination}  {tid_kvar}")

@@ -1,1 +1,29 @@
-{"stationer":["Alvik (Stockholm)":{"ID":9112, "alias":["alvik"]}]}
+{
+    "Alvik (Stockholm)": {
+        "ID": "9112",
+        "alias": [
+            "alv",
+            "alvik",
+            "Alvik st"
+        ]
+    },
+    "Alby (Botkyrka)": {
+        "ID": "9282",
+        "alias": [
+            "alby"
+        ]
+    },
+    "R\u00e5gsved (Stockholm)": {
+        "ID": "9161",
+        "alias": [
+            "R\u00e5gs",
+            "r\u00e5g"
+        ]
+    },
+    "Centralen (Stockholm)": {
+        "ID": "1002",
+        "alias": [
+            "centr"
+        ]
+    }
+}
