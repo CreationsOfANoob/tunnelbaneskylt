@@ -6,11 +6,12 @@ api_keys = None
 
 
 class Avgang:
-    def __init__(self, destination, ankomsttid, linje, datetime):
+    def __init__(self, destination, ankomsttid, linje, datetime, hallplats):
         self.destination = destination
         self.ankomsttid = ankomsttid
         self.ankomsttid_datetime = datetime
         self.linje = linje
+        self.hallplats = hallplats
 
     def __lt__(self, other):
         if self.ankomsttid_datetime is None:
@@ -29,33 +30,62 @@ class Avgang:
         destination = dict.get("Destination", "Okänd plats")
         ankomsttid = dict.get("DisplayTime", "-")
         ankomsttid_datetime = dict.get("ExpectedDateTime", None)
-        return Avgang(destination, ankomsttid, linje, ankomsttid_datetime)
+        hallplats = dict.get("StopPointDesignation", "1")
+        return Avgang(destination, ankomsttid, linje, ankomsttid_datetime, hallplats)
 
 class Station:
-    def __init__(self, namn, id, uppdateringsfrekvens, tunnelbana, sparvagn, buss, pendeltag):
+    def __init__(self, namn, id, hallplats, uppdateringsfrekvens, tunnelbana, sparvagn, buss, pendeltag):
         self._id = id
         self._uppdateringsfrekvens = uppdateringsfrekvens
         self._avgangar = []
         self._tid_nasta_uppdatering = 0
         self.namn = namn
+        self._stop_points = []
+        self._bevakad_hallplats_index = hallplats
 
-    def get_avgangar(self):
-        self.uppdatera_avgangar()
-        return self._avgangar
+    def get_avgangar(self, attempts = 1):
+        attempt = 0
+        while attempt < attempts and len(self._avgangar) == 0:
+            self.uppdatera_avgangar()
+        avgangar = []
+        for avgang in self._avgangar:
+            if avgang.hallplats == self._stop_points[self._bevakad_hallplats_index]:
+                avgangar.append(avgang)
+        return avgangar
+
+    def byt_hallplats(self, ny_hallplats):
+        self._bevakad_hallplats_index = ny_hallplats
+        self._bevakad_hallplats_index %= len(self._stop_points)
+
+    def bevakad_hallplats(self):
+        return self._stop_points[self._bevakad_hallplats_index]
+
+    def hallplatser_str(self):
+        str = ""
+        for hallplats in self._stop_points:
+            str += f"\n{hallplats}\n"
+        return str
 
     def uppdatera_avgangar(self):
         if time.time() > self._tid_nasta_uppdatering:
             self._tid_nasta_uppdatering = time.time() + self._uppdateringsfrekvens
             avgangsdata = anropa_sl_realtidsinformation(self._id).get("ResponseData")
+            print(avgangsdata)
             if not avgangsdata is None:
-                alla_avgangar = avgangsdata.get("Metros", [])
-                filtrerade_avgangar = alla_avgangar
-                self._avgangar = [Avgang.new_from_dict(avgang_data) for avgang_data in filtrerade_avgangar]
+                alla_avgangar = avgangsdata.get("Metros", []) + avgangsdata.get("Trains", []) + avgangsdata.get("Trams", []) + avgangsdata.get("Buses", [])
+                print(alla_avgangar)
+                self._avgangar = []
+                self._stop_points = []
+                for avgang_data in alla_avgangar:
+                    if avgang_data["StopPointDesignation"] not in self._stop_points:
+                        self._stop_points.append(avgang_data["StopPointDesignation"])
+                    self._avgangar.append(Avgang.new_from_dict(avgang_data))
+                self._stop_points.sort()
 
     @classmethod
-    def new_from_name(cls, stationsnamn, uppdateringsfrekvens = 20, tunnelbana = True, sparvagn = False, buss = False, pendeltag = False):
+    def new_from_name(cls, stationsnamn, hallplats = 0, uppdateringsfrekvens = 20, tunnelbana = True, sparvagn = False, buss = False, pendeltag = False):
         id, namn = cls._hitta_stationsinfo(stationsnamn)
-        return Station(namn, id, uppdateringsfrekvens, tunnelbana, sparvagn, buss, pendeltag)
+        return Station(namn, id, hallplats, uppdateringsfrekvens, tunnelbana, sparvagn, buss, pendeltag)
 
     @classmethod
     def _hitta_stationsinfo(cls, stationsnamn):
@@ -140,7 +170,7 @@ def anropa_sl_platsuppslag(stationsnamn):
 
 def anropa_sl_realtidsinformation(stationsid):
     api_key = get_api_key("sl_realtidsinformation")
-    realtidsinformation = requests.get(f"https://api.sl.se/api2/realtimedeparturesV4.json?key={api_key}&siteid={stationsid}&timewindow=20")
+    realtidsinformation = requests.get(f"https://api.sl.se/api2/realtimedeparturesV4.json?key={api_key}&siteid={stationsid}&timewindow=40")
     api_meddelande(realtidsinformation)
     return realtidsinformation.json()
 

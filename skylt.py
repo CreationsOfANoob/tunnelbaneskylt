@@ -66,7 +66,7 @@ class SkyltText:
 
         rader = self._renderad_text.split("\n")
         rader_ut = []
-        modulo_pos = pekare % (utsnitt + self._renderad_textbredd)
+        modulo_pos = pekare % max(utsnitt + self._renderad_textbredd, 1)
         for rad in rader:
             if self._rullbar:
                 hel_rad = rad.rjust(utsnitt + self._renderad_textbredd) * 2

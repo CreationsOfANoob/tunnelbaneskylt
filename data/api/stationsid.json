@@ -23,8 +23,12 @@
     "Centralen (Stockholm)": {
         "ID": "1002",
         "alias": [
-            "centr"
-        ]
+            "centr",
+            "Centralen",
+            "Central",
+            "central"
+        ],
+        "namn": "Centralen (Stockholm)"
     },
     "Bromma Blocks (Stockholm)": {
         "ID": "3601",
@@ -45,5 +49,26 @@
             "rop"
         ],
         "namn": "Ropsten (Stockholm)"
+    },
+    "Odenplan (Stockholm)": {
+        "ID": "9117",
+        "alias": [
+            "odenplan"
+        ],
+        "namn": "Odenplan (Stockholm)"
+    },
+    "Stockholm Odenplan (Stockholm)": {
+        "ID": "1079",
+        "alias": [
+            "stockholm odenplan"
+        ],
+        "namn": "Stockholm Odenplan (Stockholm)"
+    },
+    "Tekniska h\u00f6gskolan (Stockholm)": {
+        "ID": "9204",
+        "alias": [
+            "tekniska"
+        ],
+        "namn": "Tekniska h\u00f6gskolan (Stockholm)"
     }
 }
