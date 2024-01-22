@@ -3,7 +3,7 @@ import json
 import time
 
 api_keys = None
-
+_print_log = []
 
 class Avgang:
     def __init__(self, destination, ankomsttid, linje, datetime, hallplats):
@@ -30,35 +30,63 @@ class Avgang:
         destination = dict.get("Destination", "Okänd plats")
         ankomsttid = dict.get("DisplayTime", "-")
         ankomsttid_datetime = dict.get("ExpectedDateTime", None)
-        hallplats = dict.get("StopPointDesignation", "1")
+        hallplats = dict.get("StopPointNumber", "1")
         return Avgang(destination, ankomsttid, linje, ankomsttid_datetime, hallplats)
+
+
+class Deviation:
+    def __init__(self, meddelande, hallplats):
+        self.meddelande = meddelande
+        self.hallplats = hallplats
+
+    def to_str(self):
+        return self.meddelande
+
+    @classmethod
+    def new_from_dict(cls, dict):
+        meddelande = dict["Deviation"]["Text"]
+        hallplats = dict["StopInfo"]["StopAreaNumber"]
+        return Deviation(meddelande, hallplats)
+
 
 class Station:
     def __init__(self, namn, id, hallplats, uppdateringsfrekvens, tunnelbana, sparvagn, buss, pendeltag):
         self._id = id
         self._uppdateringsfrekvens = uppdateringsfrekvens
         self._avgangar = []
+        self._deviations = []
         self._tid_nasta_uppdatering = 0
         self.namn = namn
         self._stop_points = []
         self._bevakad_hallplats_index = hallplats
 
-    def get_avgangar(self, attempts = 1):
+    def get_avgangar(self, attempts = 1, osorterad = False, call_on_update = None, call_on_finished = None):
         attempt = 0
-        while attempt < attempts and len(self._avgangar) == 0:
-            self.uppdatera_avgangar()
+        while attempt < attempts and len(self._avgangar) == 0 or attempt == 0:
+            self.uppdatera_avgangar(call_on_update, call_on_finished)
+            attempt += 1
         avgangar = []
+        deviations = []
+
+        if osorterad:
+            return (self._avgangar, self._deviations)
         for avgang in self._avgangar:
             if avgang.hallplats == self._stop_points[self._bevakad_hallplats_index]:
                 avgangar.append(avgang)
-        return avgangar
+
+        for deviation in self._deviations:
+            if deviation.hallplats == self._stop_points[self._bevakad_hallplats_index]:
+                deviations.append(deviation)
+
+        return (avgangar, deviations)
 
     def byt_hallplats(self, ny_hallplats):
         self._bevakad_hallplats_index = ny_hallplats
         self._bevakad_hallplats_index %= len(self._stop_points)
 
     def bevakad_hallplats(self):
-        return self._stop_points[self._bevakad_hallplats_index]
+        if not self._stop_points == []:
+            return self._stop_points[self._bevakad_hallplats_index]
 
     def hallplatser_str(self):
         str = ""
@@ -66,21 +94,31 @@ class Station:
             str += f"\n{hallplats}\n"
         return str
 
-    def uppdatera_avgangar(self):
+    def uppdatera_avgangar(self, call_on_update, call_on_finished):
         if time.time() > self._tid_nasta_uppdatering:
+            if not call_on_update is None:
+                call_on_update()
+
             self._tid_nasta_uppdatering = time.time() + self._uppdateringsfrekvens
-            avgangsdata = anropa_sl_realtidsinformation(self._id).get("ResponseData")
-            print(avgangsdata)
+            api_data = anropa_sl_realtidsinformation(self._id)
+            avgangsdata = api_data.get("ResponseData")
+            json_file_from_dict(api_data, "data/api/cache/senaste_api_anrop.json")
+
             if not avgangsdata is None:
                 alla_avgangar = avgangsdata.get("Metros", []) + avgangsdata.get("Trains", []) + avgangsdata.get("Trams", []) + avgangsdata.get("Buses", [])
-                print(alla_avgangar)
                 self._avgangar = []
                 self._stop_points = []
+                self._deviations = []
                 for avgang_data in alla_avgangar:
-                    if avgang_data["StopPointDesignation"] not in self._stop_points:
-                        self._stop_points.append(avgang_data["StopPointDesignation"])
+                    if avgang_data["StopPointNumber"] not in self._stop_points:
+                        self._stop_points.append(avgang_data["StopPointNumber"])
                     self._avgangar.append(Avgang.new_from_dict(avgang_data))
-                self._stop_points.sort()
+                self._stop_points.sort() #<---- kan inte sortera None
+                alla_meddelanden = avgangsdata.get("StopPointDeviations")
+                for deviation in alla_meddelanden:
+                    self._deviations.append(Deviation.new_from_dict(deviation))
+            if not call_on_finished is None:
+                call_on_finished()
 
     @classmethod
     def new_from_name(cls, stationsnamn, hallplats = 0, uppdateringsfrekvens = 20, tunnelbana = True, sparvagn = False, buss = False, pendeltag = False):
@@ -152,15 +190,15 @@ def get_api_key(nyckelnamn):
     try:
         nycklar_dict = dict_from_json_file("data/api/nycklar.json")
     except FileNotFoundError:
-        print("Filen data/api/nycklar.json saknas.\nDu måste skaffa API-nycklar från https://developer.trafiklab.se\noch skapa filen data/api/nycklar.json.\nSe mallfilen data/api/nycklar_mall.json.")
+        log_print("Filen data/api/nycklar.json saknas.\nDu måste skaffa API-nycklar från https://developer.trafiklab.se\noch skapa filen data/api/nycklar.json.\nSe mallfilen data/api/nycklar_mall.json.")
         return
     try:
         return nycklar_dict[nyckelnamn]
     except KeyError:
-        print(f"Nyckel {nyckelnamn} saknas i data/api/nycklar.json")
+        log_print(f"Nyckel {nyckelnamn} saknas i data/api/nycklar.json")
 
 def api_meddelande(request_object):
-    print(f"API-anrop med statuskod {request_object.status_code}")
+    log_print(f"API-anrop med statuskod {request_object.status_code}")
 
 def anropa_sl_platsuppslag(stationsnamn):
     api_key = get_api_key("sl_platsuppslag")
@@ -174,13 +212,26 @@ def anropa_sl_realtidsinformation(stationsid):
     api_meddelande(realtidsinformation)
     return realtidsinformation.json()
 
+def log_print(str = ""):
+    global _print_log
+    if __name__=="__main__":
+        print(str)
+    else:
+        _print_log.append(str)
+
+def get_log():
+    return _print_log
 
 if __name__=="__main__":
-    print()
+    log_print()
     stationsnamn = input("Vilken station vill du kolla?\nStation: ")
     station = Station.new_from_name(stationsnamn)
-    avgangar = station.get_avgangar()
-    print()
-    print(station.namn)
+    api_data = station.get_avgangar(5)
+    avgangar = api_data[0]
+    deviations = api_data[1]
+    log_print()
+    log_print(station.namn)
     for avgang in avgangar:
-        print(avgang.to_str())
+        log_print(avgang.to_str())
+    for deviation in deviations:
+        log_print(deviation.to_str())

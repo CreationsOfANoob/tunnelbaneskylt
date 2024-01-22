@@ -35,6 +35,9 @@ class SkyltText:
             self._renderad_text_uppdaterad = False
             self.rulla_till_kant()
 
+    def addera_text(self, text):
+        self.uppdatera_text(self._plain_text + text)
+
     def uppdatera_bredd(self, ny_bredd = 0):
         self._bredd = ny_bredd
 

@@ -4,8 +4,10 @@
         "alias": [
             "alv",
             "alvik",
-            "Alvik st"
-        ]
+            "Alvik st",
+            "alvi"
+        ],
+        "namn": "Alvik (Stockholm)"
     },
     "Alby (Botkyrka)": {
         "ID": "9282",
@@ -26,7 +28,9 @@
             "centr",
             "Centralen",
             "Central",
-            "central"
+            "central",
+            "centra",
+            "centralen"
         ],
         "namn": "Centralen (Stockholm)"
     },
@@ -67,8 +71,97 @@
     "Tekniska h\u00f6gskolan (Stockholm)": {
         "ID": "9204",
         "alias": [
-            "tekniska"
+            "tekniska",
+            "teknisk"
         ],
         "namn": "Tekniska h\u00f6gskolan (Stockholm)"
+    },
+    "Mariatorget (t-banan) (Stockholm)": {
+        "ID": "9297",
+        "alias": [
+            "mariatorget",
+            "maria"
+        ],
+        "namn": "Mariatorget (t-banan) (Stockholm)"
+    },
+    "Tanto (Stockholm)": {
+        "ID": "1360",
+        "alias": [
+            "tanto"
+        ],
+        "namn": "Tanto (Stockholm)"
+    },
+    "Zinkensdamm (Stockholm)": {
+        "ID": "9296",
+        "alias": [
+            "zinken",
+            "zink"
+        ],
+        "namn": "Zinkensdamm (Stockholm)"
+    },
+    "\u00d6ster Edsvik (Norrt\u00e4lje)": {
+        "ID": "6700",
+        "alias": [
+            "\u00f6ster"
+        ],
+        "namn": "\u00d6ster Edsvik (Norrt\u00e4lje)"
+    },
+    "\u00d6stermalmstorg (Stockholm)": {
+        "ID": "9206",
+        "alias": [
+            "\u00f6stermal",
+            "\u00f6sterm"
+        ],
+        "namn": "\u00d6stermalmstorg (Stockholm)"
+    },
+    "G\u00e4rdet (Stockholm)": {
+        "ID": "9221",
+        "alias": [
+            "g\u00e4rdet"
+        ],
+        "namn": "G\u00e4rdet (Stockholm)"
+    },
+    "Minneberg (Stockholm)": {
+        "ID": "3630",
+        "alias": [
+            "minneberg"
+        ],
+        "namn": "Minneberg (Stockholm)"
+    },
+    "Liljeholmen (Stockholm)": {
+        "ID": "9294",
+        "alias": [
+            "liljeholm",
+            "lilje"
+        ],
+        "namn": "Liljeholmen (Stockholm)"
+    },
+    "Waldemarsudde (Stockholm)": {
+        "ID": "1400",
+        "alias": [
+            "waldem"
+        ],
+        "namn": "Waldemarsudde (Stockholm)"
+    },
+    "Fittja (Botkyrka)": {
+        "ID": "9283",
+        "alias": [
+            "fitt"
+        ],
+        "namn": "Fittja (Botkyrka)"
+    },
+    "Alice Tegn\u00e9rs v\u00e4g (Botkyrka)": {
+        "ID": "7231",
+        "alias": [
+            "alivk"
+        ],
+        "namn": "Alice Tegn\u00e9rs v\u00e4g (Botkyrka)"
+    },
+    "Slussen (Stockholm)": {
+        "ID": "9192",
+        "alias": [
+            "slu"
+        ],
+        "namn": "Slussen (Stockholm)"
     }
 }
