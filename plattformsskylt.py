@@ -66,7 +66,7 @@ if __name__=="__main__":
     parser = argparse.ArgumentParser(description="Hämtar och visar avgångar från kollektivtrafikstationer i Stockholm.")
     parser.add_argument("-f", help="Uppdateringsfrekvens för skärm", type=int, default=24)
     parser.add_argument("-s", help="Hastighet", type=int, default=2)
-    parser.add_argument("-t", help="Filsökväg för typsnitt (json)", type=str, default="data/typsnitt_a.json")
+    parser.add_argument("-t", help="Filsökväg för typsnitt (json)", type=str, default="data/typsnitt/typsnitt_a.json")
     parser.add_argument("-d", help="Debug-läge", action="store_true")
     parser.add_argument("-n", help="Stationsnamn", type=str, default="Alvik (Stockholm)")
     parser.add_argument("-p", help="Stationsläge", type=int, default=0)
@@ -89,15 +89,16 @@ if __name__=="__main__":
     api_anrop_thread.start()
 
     print('\033[?25l', end="") #Göm pekare
-    os.system('clear')
+
     while True:
         try:
             time.sleep(1/args.f)
-            terminalbredd = os.get_terminal_size().columns
+            terminalstorlek = os.get_terminal_size()
+            terminalbredd = terminalstorlek.columns
 
             with skylt_lock:
                 plattformsskylt.uppdatera_bredd(terminalbredd)
-                print("\033[2J\033[5;0H" + f"{bcolors.YELLOW}{plattformsskylt.rendera()}{bcolors.ENDC}{station.namn}\n\nLäge {station.bevakad_hallplats()}\n\n\n{bcolors.OKCYAN}{natverksstatus.status}{bcolors.ENDC}")#{"\n\n".join(sl_api.get_log())}")
+                print("\033[2J\033[5;0H" + f"{bcolors.YELLOW}{plattformsskylt.rendera()}{bcolors.ENDC}\033[{terminalstorlek.lines - 5};0H{station.namn}\n\nLäge {station.bevakad_hallplats()}\n\n\n{bcolors.OKCYAN}{natverksstatus.status}{bcolors.ENDC}")#{"\n\n".join(sl_api.get_log())}")
                 skylt_nere.rulla(args.s)
 
         except KeyboardInterrupt:

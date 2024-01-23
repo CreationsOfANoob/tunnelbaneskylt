@@ -163,5 +163,12 @@
             "slu"
         ],
         "namn": "Slussen (Stockholm)"
+    },
+    "Gullmarsplan (Stockholm)": {
+        "ID": "9189",
+        "alias": [
+            "gull"
+        ],
+        "namn": "Gullmarsplan (Stockholm)"
     }
 }

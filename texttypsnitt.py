@@ -43,7 +43,7 @@ class ASCIITypsnitt:
         with open(file_path, "r") as file:
             json_dict = json.loads(file.read())
             #Byt ut punkter mot mellanslag, | mot radbrytningar
-            json_dict["characters"] = {k:v.replace("|", "\n").replace(".", " ").replace("#", "*") for k, v in json_dict["characters"].items()}
+            json_dict["characters"] = {k:v.replace("|", "\n").replace(".", " ").replace("#", "●") for k, v in json_dict["characters"].items()}
             return ASCIITypsnitt(json_dict["characters"])
 
 
