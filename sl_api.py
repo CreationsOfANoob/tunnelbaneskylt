@@ -146,7 +146,7 @@ def json_file_from_dict(dict, filnamn):
 
 def hitta_station(station_str):
     hittad_station = None
-    sparade_stationer = dict_from_json_file("data/api/stationsid.json")
+    sparade_stationer = dict_from_json_file("data/api/cache/stationsid.json")
     try:
         #Börja med att kolla om stationsnamnet matchar en sparad station
         hittad_station = sparade_stationer[station_str]
@@ -173,7 +173,7 @@ def hitta_station(station_str):
             sparade_stationer[best_result["Name"]] = sparad_station
             hittad_station = sparad_station
             hittad_station["namn"] = best_result["Name"]
-            json_file_from_dict(sparade_stationer, "data/api/stationsid.json")
+            json_file_from_dict(sparade_stationer, "data/api/cache/stationsid.json")
     return hittad_station
 
 
