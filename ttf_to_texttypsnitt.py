@@ -17,7 +17,7 @@ for char in chars:
     charpixellength = int(font.getlength(char))
     image = Image.new("1", (charpixellength, int(imsize * 1)))
     draw = ImageDraw.Draw(image)
-    draw.text((1, 0), char, 1, font = font)
+    draw.text((1, 0), char + " \n ", 1, font = font)
     imagedata = list(image.getdata())
     rows = [imagedata[y * charpixellength:(y+1) * charpixellength] for y in range(imsize)]
     character_data = "|".join(["".join([str(c) for c in row]) for row in rows]).replace("0",".").replace("1","#")

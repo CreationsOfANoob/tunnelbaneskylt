@@ -72,7 +72,8 @@
         "ID": "9204",
         "alias": [
             "tekniska",
-            "teknisk"
+            "teknisk",
+            "tekn"
         ],
         "namn": "Tekniska h\u00f6gskolan (Stockholm)"
     },
@@ -170,5 +171,19 @@
             "gull"
         ],
         "namn": "Gullmarsplan (Stockholm)"
+    },
+    "S\u00f6dert\u00e4lje centrum (S\u00f6dert\u00e4lje)": {
+        "ID": "9520",
+        "alias": [
+            "s\u00f6dert\u00e4lje"
+        ],
+        "namn": "S\u00f6dert\u00e4lje centrum (S\u00f6dert\u00e4lje)"
+    },
+    "Johannesfred (Stockholm)": {
+        "ID": "3611",
+        "alias": [
+            "johannesfred"
+        ],
+        "namn": "Johannesfred (Stockholm)"
     }
 }
